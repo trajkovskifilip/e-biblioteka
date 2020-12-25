@@ -12,10 +12,21 @@ namespace E_biblioteka.Controllers
 {
     public class HomeController : Controller
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
+        private IApplicationDbContext db;
+
+        public HomeController()
+        {
+            db = new ApplicationDbContext();
+        }
+
+        public HomeController(IApplicationDbContext dbContext)
+        {
+            db = dbContext;
+        }
+
         public ActionResult Index()
         {
-            return View(db.Books.Include(b => b.Author).OrderByDescending(book => book.Rating).ToList().GetRange(0, 5));
+            return View(db.Query<Book>().Include(b => b.Author).OrderByDescending(book => book.Rating).ToList().GetRange(0, 5));
         }
 
         public ActionResult About()

@@ -13,14 +13,24 @@ namespace E_biblioteka.Controllers
 {
     public class AuthorsController : Controller
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
+        private IApplicationDbContext db;
+
+        public AuthorsController()
+        {
+            db = new ApplicationDbContext();
+        }
+
+        public AuthorsController(IApplicationDbContext dbContext)
+        {
+            db = dbContext;
+        }
 
         // GET: Authors
         public ActionResult Index(int? page, string orderBy, string search)
         {
             var pageNumber = page ?? 1;
             var pageSize = 9;
-            var authors = from a in db.Authors
+            var authors = from a in db.Query<Author>()
                           select a;
             IOrderedQueryable<Author> model;
 
@@ -60,7 +70,7 @@ namespace E_biblioteka.Controllers
             ViewBag.Page = page;
             ViewBag.OrderBy = orderBy;
             ViewBag.Search = search;
-            Author author = db.Authors.Include(a => a.Books).FirstOrDefault(a => a.AuthorId == id);
+            Author author = db.Query<Author>().Include(a => a.Books).FirstOrDefault(a => a.AuthorId == id);
             if (author == null)
             {
                 return HttpNotFound();
@@ -85,7 +95,7 @@ namespace E_biblioteka.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Authors.Add(author);
+                db.Add(author);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
@@ -104,7 +114,7 @@ namespace E_biblioteka.Controllers
             ViewBag.Page = page;
             ViewBag.OrderBy = orderBy;
             ViewBag.Search = search;
-            Author author = db.Authors.Find(id);
+            Author author = db.Query<Author>().FirstOrDefault(a => a.AuthorId == id);
             if (author == null)
             {
                 return HttpNotFound();
@@ -122,7 +132,7 @@ namespace E_biblioteka.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(author).State = EntityState.Modified;
+                db.Update(author);
                 db.SaveChanges();
                 return RedirectToAction("Index", new { page, orderBy, search });
             }
@@ -140,7 +150,7 @@ namespace E_biblioteka.Controllers
             ViewBag.Page = page;
             ViewBag.OrderBy = orderBy;
             ViewBag.Search = search;
-            Author author = db.Authors.Find(id);
+            Author author = db.Query<Author>().FirstOrDefault(a => a.AuthorId == id);
             if (author == null)
             {
                 return HttpNotFound();
@@ -154,8 +164,8 @@ namespace E_biblioteka.Controllers
         [Authorize(Roles = "Administrator")]
         public ActionResult DeleteConfirmed(long id, int page, string orderBy, string search)
         {
-            Author author = db.Authors.Find(id);
-            db.Authors.Remove(author);
+            Author author = db.Query<Author>().FirstOrDefault(a => a.AuthorId == id);
+            db.Remove(author);
             db.SaveChanges();
             return RedirectToAction("Index", new { page, orderBy, search });
         }

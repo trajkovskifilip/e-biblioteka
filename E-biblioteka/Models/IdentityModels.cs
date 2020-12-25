@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using E_biblioteka.Models.Forum;
@@ -50,13 +51,46 @@ namespace E_biblioteka.Models
         }
     }
 
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    public interface IApplicationDbContext : IDisposable
+    {
+        IQueryable<T> Query<T>() where T : class;
+        void Add<T>(T entity) where T : class;
+        void Update<T>(T entity) where T : class;
+        void Remove<T>(T entity) where T : class;
+        void SaveChanges();
+    }
+
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplicationDbContext
     {
         public DbSet<Book> Books { get; set; }
         public DbSet<Author> Authors { get; set; }
         public DbSet<Request> Requests { get; set; }
         public DbSet<Post> Posts { get; set; }
 
+        IQueryable<T> IApplicationDbContext.Query<T>()
+        {
+            return Set<T>();
+        }
+
+        void IApplicationDbContext.Add<T>(T entity)
+        {
+            Set<T>().Add(entity);
+        }
+
+        void IApplicationDbContext.Update<T>(T entity)
+        {
+            Entry(entity).State = EntityState.Modified;
+        }
+
+        void IApplicationDbContext.Remove<T>(T entity)
+        {
+            Set<T>().Remove(entity);
+        }
+
+        void IApplicationDbContext.SaveChanges()
+        {
+            SaveChanges();
+        }
         public ApplicationDbContext()
             : base("DefaultConnection", throwIfV1Schema: false)
         {

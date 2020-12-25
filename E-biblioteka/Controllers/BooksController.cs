@@ -14,16 +14,26 @@ namespace E_biblioteka.Controllers
 {
     public class BooksController : Controller
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
+        private IApplicationDbContext db;
+
+        public BooksController()
+        {
+            db = new ApplicationDbContext();
+        }
+
+        public BooksController(IApplicationDbContext dbContext)
+        {
+            db = dbContext;
+        }
 
         // GET: Books
         public ActionResult Index(int? page, string orderBy, string search, string bookGenre)
         {
             var pageNumber = page ?? 1;
             var pageSize = 9;
-            var books = db.Books.Include(b => b.Author);
+            var books = db.Query<Book>().Include(b => b.Author);
 
-            IQueryable<string> genreQuery = from b in db.Books
+            IQueryable<string> genreQuery = from b in db.Query<Book>()
                                             orderby b.Genre
                                             select b.Genre;
 
@@ -85,7 +95,7 @@ namespace E_biblioteka.Controllers
             ViewBag.OrderBy = orderBy;
             ViewBag.Search = search;
             ViewBag.BookGenre = bookGenre;
-            Book book = db.Books.Include(b => b.Author).FirstOrDefault(b => b.BookId == id);
+            Book book = db.Query<Book>().Include(b => b.Author).FirstOrDefault(b => b.BookId == id);
             if (book == null)
             {
                 return HttpNotFound();
@@ -100,7 +110,7 @@ namespace E_biblioteka.Controllers
             var model = new AddAuthorToBook()
             {
                 Book = new Book(),
-                Authors = db.Authors.ToList(),
+                Authors = db.Query<Author>().ToList(),
                 SelectedAuthorId = -1,
                 SelectedBookId = -1
             };
@@ -118,11 +128,11 @@ namespace E_biblioteka.Controllers
             var model = new AddAuthorToBook()
             {
                 Book = newBook,
-                Authors = db.Authors.ToList(),
+                Authors = db.Query<Author>().ToList(),
                 SelectedAuthorId = -1,
                 SelectedBookId = -1
             };
-            db.Requests.Remove(db.Requests.Find(request.RequestId));
+            db.Remove(db.Query<Request>().FirstOrDefault(r => r.RequestId == request.RequestId));
             db.SaveChanges();
             return View(model);
         }
@@ -147,13 +157,13 @@ namespace E_biblioteka.Controllers
                     ImageUrl = model.Book.ImageUrl
                 };
 
-                Author author = db.Authors.Find(model.SelectedAuthorId);
+                Author author = db.Query<Author>().FirstOrDefault(a => a.AuthorId == model.SelectedAuthorId);
                 if (author == null)
                 {
                     model = new AddAuthorToBook()
                     {
                         Book = new Book(),
-                        Authors = db.Authors.ToList(),
+                        Authors = db.Query<Author>().ToList(),
                         SelectedAuthorId = -1,
                         SelectedBookId = -1
                     };
@@ -162,7 +172,7 @@ namespace E_biblioteka.Controllers
                 }
                 book.Author = author;
 
-                db.Books.Add(book);
+                db.Add(book);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
@@ -184,14 +194,14 @@ namespace E_biblioteka.Controllers
             ViewBag.Search = search;
             ViewBag.BookGenre = bookGenre;
 
-            Book book = db.Books.Find(id);
+            Book book = db.Query<Book>().FirstOrDefault(b => b.BookId == id);
             if (book == null)
                 return HttpNotFound();
 
             var model = new AddAuthorToBook()
             {
                 Book = new Book(),
-                Authors = db.Authors.ToList(),
+                Authors = db.Query<Author>().ToList(),
                 SelectedAuthorId = book.Author.AuthorId,
                 SelectedBookId = -1
             };
@@ -210,7 +220,7 @@ namespace E_biblioteka.Controllers
         {
             if (ModelState.IsValid)
             {
-                Book book = db.Books.Find(model.Book.BookId);
+                Book book = db.Query<Book>().FirstOrDefault(b => b.BookId == model.Book.BookId);
                 if (book == null)
                     return HttpNotFound();
 
@@ -222,13 +232,13 @@ namespace E_biblioteka.Controllers
                 book.Year = model.Book.Year;
                 book.InStock = model.Book.InStock;
 
-                Author author = db.Authors.Find(model.SelectedAuthorId);
+                Author author = db.Query<Author>().FirstOrDefault(a => a.AuthorId == model.SelectedAuthorId);
                 if (author == null)
                 {
                     model = new AddAuthorToBook()
                     {
                         Book = new Book(),
-                        Authors = db.Authors.ToList(),
+                        Authors = db.Query<Author>().ToList(),
                         SelectedAuthorId = -1,
                         SelectedBookId = -1
                     };
@@ -256,7 +266,7 @@ namespace E_biblioteka.Controllers
             ViewBag.Search = search;
             ViewBag.BookGenre = bookGenre;
 
-            Book book = db.Books.Include(b => b.Author).FirstOrDefault(b => b.BookId == id);
+            Book book = db.Query<Book>().Include(b => b.Author).FirstOrDefault(b => b.BookId == id);
             if (book == null)
             {
                 return HttpNotFound();
@@ -270,8 +280,8 @@ namespace E_biblioteka.Controllers
         [Authorize(Roles = "Administrator")]
         public ActionResult DeleteConfirmed(long id, int page, string orderBy, string search, string bookGenre)
         {
-            Book book = db.Books.Include(b => b.Author).FirstOrDefault(b => b.BookId == id);
-            db.Books.Remove(book);
+            Book book = db.Query<Book>().Include(b => b.Author).FirstOrDefault(b => b.BookId == id);
+            db.Remove(book);
             db.SaveChanges();
             return RedirectToAction("Index", new { page, orderBy, search, bookGenre });
         }
@@ -283,7 +293,7 @@ namespace E_biblioteka.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Book book = db.Books.Include(b => b.Author).FirstOrDefault(b => b.BookId == id);
+            Book book = db.Query<Book>().Include(b => b.Author).FirstOrDefault(b => b.BookId == id);
             if (book == null)
             {
                 return HttpNotFound();
@@ -303,7 +313,7 @@ namespace E_biblioteka.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Book book = db.Books.Include(b => b.Author).FirstOrDefault(b => b.BookId == id);
+            Book book = db.Query<Book>().Include(b => b.Author).FirstOrDefault(b => b.BookId == id);
             if (book == null)
             {
                 return HttpNotFound();
@@ -329,7 +339,7 @@ namespace E_biblioteka.Controllers
             ViewBag.Search = search;
             ViewBag.BookGenre = bookGenre;
 
-            Book book = db.Books.Include(b => b.Author).FirstOrDefault(b => b.BookId == id);
+            Book book = db.Query<Book>().Include(b => b.Author).FirstOrDefault(b => b.BookId == id);
             if (book == null)
             {
                 return HttpNotFound();
@@ -341,9 +351,9 @@ namespace E_biblioteka.Controllers
         [Authorize(Roles = "Member, Moderator")]
         public ActionResult OrderConfirmed(long? id, int page, string orderBy, string search, string bookGenre)
         {
-            Book book = db.Books.Include(b => b.Author).FirstOrDefault(b => b.BookId == id);
+            Book book = db.Query<Book>().Include(b => b.Author).FirstOrDefault(b => b.BookId == id);
             book.InStock -= 1;
-            db.Entry(book).Property(b => b.InStock).IsModified = true;
+            db.Update(book);
             db.SaveChanges();
             return RedirectToAction("Index", "Books", new { page, orderBy, search, bookGenre });
         }

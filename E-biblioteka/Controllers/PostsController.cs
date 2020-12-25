@@ -15,9 +15,18 @@ namespace E_biblioteka.Controllers
     [Authorize]
     public class PostsController : Controller
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
+        private IApplicationDbContext db;
         private ApplicationUser au = new ApplicationUser();
 
+        public PostsController()
+        {
+            db = new ApplicationDbContext();
+        }
+
+        public PostsController(IApplicationDbContext dbContext)
+        {
+            db = dbContext;
+        }
         // GET: AddCommentToPost
         //
 
@@ -26,7 +35,7 @@ namespace E_biblioteka.Controllers
         public ActionResult Index()
         {
             ViewBag.UserId = User.Identity.GetUserId();
-            return View(db.Posts.ToList());
+            return View(db.Query<Post>().ToList());
         }
 
         // GET: Posts/Create
@@ -36,16 +45,16 @@ namespace E_biblioteka.Controllers
 
             if (BookId != null)
             {
-                Books.Add(db.Books.Find(BookId));
+                Books.Add(db.Query<Book>().FirstOrDefault(b => b.BookId == BookId));
             }
             else
             {
-                Books = db.Books.ToList();
+                Books = db.Query<Book>().ToList();
             }
             NewPost model = new NewPost();
             {
                 model.Books = Books;
-                var user = db.Users.Find(User.Identity.GetUserId());
+                var user = db.Query<ApplicationUser>().FirstOrDefault(u => u.Id == User.Identity.GetUserId());
                 if (user != null)
                 {
                     model.Title = user.UserName;
@@ -71,16 +80,16 @@ namespace E_biblioteka.Controllers
                     post.Title = model.Title;
                     post.BookId = model.BookId;
                     post.Content = model.Content;
-                    post.SelectedBook = db.Books.Find(model.BookId);
-                    post.User = db.Users.Find(User.Identity.GetUserId());
+                    post.SelectedBook = db.Query<Book>().FirstOrDefault(b => b.BookId == model.BookId);
+                    post.User = db.Query<ApplicationUser>().FirstOrDefault(u => u.Id == User.Identity.GetUserId());
                 }
                 catch
                 {
                     return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
                 }
-                db.Posts.Add(post);
+                db.Add(post);
                 db.SaveChanges();
-                Book book = db.Books.Find(model.BookId);
+                Book book = db.Query<Book>().FirstOrDefault(b => b.BookId == model.BookId);
                 return RedirectToAction("Details", "Books", new { id = book.BookId, page = 1});
             }
             return View(post);
@@ -98,7 +107,7 @@ namespace E_biblioteka.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Post post = db.Posts.Find(id);
+            Post post = db.Query<Post>().FirstOrDefault(p => p.Id == id);
             if (post == null)
             {
                 return HttpNotFound();
@@ -120,9 +129,9 @@ namespace E_biblioteka.Controllers
                 {
                     return new HttpStatusCodeResult(HttpStatusCode.Unauthorized);
                 }
-                Post ChangePost = db.Posts.Find(post.Id);
-                Book SelectedBook = db.Books.Find(post.BookId);
-                ApplicationUser User = db.Users.Find(post.UserId);
+                Post ChangePost = db.Query<Post>().FirstOrDefault(p => p.Id == post.Id);
+                Book SelectedBook = db.Query<Book>().FirstOrDefault(b => b.BookId == post.BookId);
+                ApplicationUser User = db.Query<ApplicationUser>().FirstOrDefault(u => u.Id == post.UserId);
                 ChangePost.Title = post.Title;
                 ChangePost.Content = post.Content;
                 //ChangePost.SelectedBook = post.SelectedBook = SelectedBook;
@@ -148,7 +157,7 @@ namespace E_biblioteka.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Post post = db.Posts.Find(id);
+            Post post = db.Query<Post>().FirstOrDefault(p => p.Id == id);
             if (post == null)
             {
                 return HttpNotFound();
@@ -166,8 +175,8 @@ namespace E_biblioteka.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.Unauthorized);
             }
-            Post post = db.Posts.Find(id);
-            db.Posts.Remove(post);
+            Post post = db.Query<Post>().FirstOrDefault(p => p.Id == id);
+            db.Remove(post);
             db.SaveChanges();
             return RedirectToAction("Details", "Books", new { id = post.BookId , page = 1 });
         }
@@ -185,8 +194,8 @@ namespace E_biblioteka.Controllers
         {
             int PostId = id;
             string UserId = User.Identity.GetUserId();
-            Post post = db.Posts.Find(PostId);
-            ApplicationUser user = db.Users.Find(UserId);
+            Post post = db.Query<Post>().FirstOrDefault(p => p.Id == PostId);
+            ApplicationUser user = db.Query<ApplicationUser>().FirstOrDefault(u => u.Id == UserId);
             string RoleId = GetUserRole(UserId);
             if (RoleId == "1" || RoleId == "3" || post.UserId == UserId)
             {
@@ -199,7 +208,7 @@ namespace E_biblioteka.Controllers
         }
         private string GetUserRole(string UserId)
         {
-            ApplicationUser user = db.Users.Find(UserId);
+            ApplicationUser user = db.Query<ApplicationUser>().FirstOrDefault(u => u.Id == UserId);
             try
             {
                 string roleId = user.Roles.ToList().FirstOrDefault(m => m.UserId == UserId).RoleId;//1,3

@@ -13,13 +13,24 @@ namespace E_biblioteka.Controllers
     [Authorize]
     public class RequestsController : Controller
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
+        private IApplicationDbContext db;
+
+        public RequestsController()
+        {
+            db = new ApplicationDbContext();
+        }
+
+        public RequestsController(IApplicationDbContext dbContext)
+        {
+
+            db = dbContext;
+        }
 
         // GET: Requests
         [Authorize(Roles = "Administrator,Employee")]
         public ActionResult Index()
         {
-            return View(db.Requests.ToList());
+            return View(db.Query<Request>().ToList());
         }
 
         // GET: Requests/Details/5
@@ -29,7 +40,7 @@ namespace E_biblioteka.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Request request = db.Requests.Find(id);
+            Request request = db.Query<Request>().FirstOrDefault(r => r.RequestId == id);
             if (request == null)
             {
                 return HttpNotFound();
@@ -54,7 +65,7 @@ namespace E_biblioteka.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Requests.Add(request);
+                db.Add(request);
                 db.SaveChanges();
                 return RedirectToAction("Index", "Books");
             }
@@ -70,7 +81,7 @@ namespace E_biblioteka.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Request request = db.Requests.Find(id);
+            Request request = db.Query<Request>().FirstOrDefault(r => r.RequestId == id);
             if (request == null)
             {
                 return HttpNotFound();
@@ -84,8 +95,8 @@ namespace E_biblioteka.Controllers
         [Authorize(Roles = "Administrator, Employee")]
         public ActionResult DeleteConfirmed(long id)
         {
-            Request request = db.Requests.Find(id);
-            db.Requests.Remove(request);
+            Request request = db.Query<Request>().FirstOrDefault(r => r.RequestId == id);
+            db.Remove(request);
             db.SaveChanges();
             return RedirectToAction("Index");
         }
