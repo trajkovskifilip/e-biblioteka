@@ -99,8 +99,7 @@ namespace E_biblioteka.Controllers
         [Authorize(Roles = "Administrator, Moderator")]
         public ActionResult Edit(int? id)
         {
-            string userId = User.Identity.GetUserId();
-            if (id != null && !IsAuthorized(id.Value, userId))
+            if (id != null && !IsAuthorized(id.Value))
             {
                 return new HttpStatusCodeResult(HttpStatusCode.Unauthorized);
             }
@@ -126,14 +125,13 @@ namespace E_biblioteka.Controllers
         {
             if (ModelState.IsValid)
             {
-                string userId = User.Identity.GetUserId();
-                if (!IsAuthorized(post.Id, userId))
+                if (!IsAuthorized(post.Id))
                 {
                     return new HttpStatusCodeResult(HttpStatusCode.Unauthorized);
                 }
                 Post ChangePost = db.Query<Post>().FirstOrDefault(p => p.Id == post.Id);
                 Book SelectedBook = db.Query<Book>().FirstOrDefault(b => b.BookId == post.BookId);
-                //ApplicationUser User = db.Query<ApplicationUser>().FirstOrDefault(u => u.Id == post.UserId);
+                ApplicationUser User = db.Query<ApplicationUser>().FirstOrDefault(u => u.Id == post.UserId);
                 ChangePost.Title = post.Title;
                 ChangePost.Content = post.Content;
                 //ChangePost.SelectedBook = post.SelectedBook = SelectedBook;
@@ -151,8 +149,7 @@ namespace E_biblioteka.Controllers
         [Authorize(Roles = "Administrator, Moderator")]
         public ActionResult Delete(int? id)
         {
-            string userId = User.Identity.GetUserId();
-            if (id != null && !IsAuthorized(id.Value, userId))
+            if (id != null && !IsAuthorized(id.Value))
             {
                 return new HttpStatusCodeResult(HttpStatusCode.Unauthorized);
             }
@@ -174,8 +171,7 @@ namespace E_biblioteka.Controllers
         [Authorize(Roles = "Administrator, Moderator")]
         public ActionResult DeleteConfirmed(int id)
         {
-            string userId = User.Identity.GetUserId();
-            if (!IsAuthorized(id, userId))
+            if (!IsAuthorized(id))
             {
                 return new HttpStatusCodeResult(HttpStatusCode.Unauthorized);
             }
@@ -194,13 +190,14 @@ namespace E_biblioteka.Controllers
             base.Dispose(disposing);
         }
 
-        private bool IsAuthorized(int id, string userId)
+        private Boolean IsAuthorized(int id)
         {
             int PostId = id;
+            string UserId = User.Identity.GetUserId();
             Post post = db.Query<Post>().FirstOrDefault(p => p.Id == PostId);
-            ApplicationUser user = db.Query<ApplicationUser>().FirstOrDefault(u => u.Id == userId);
-            string RoleId = GetUserRole(userId);
-            if (RoleId == "1" || RoleId == "3" || post.UserId == userId)
+            ApplicationUser user = db.Query<ApplicationUser>().FirstOrDefault(u => u.Id == UserId);
+            string RoleId = GetUserRole(UserId);
+            if (RoleId == "1" || RoleId == "3" || post.UserId == UserId)
             {
                 return true;
             }
@@ -214,7 +211,7 @@ namespace E_biblioteka.Controllers
             ApplicationUser user = db.Query<ApplicationUser>().FirstOrDefault(u => u.Id == UserId);
             try
             {
-                string roleId = user.Roles.ToList().FirstOrDefault(m => m.UserId == UserId).RoleId; // 1, 3
+                string roleId = user.Roles.ToList().FirstOrDefault(m => m.UserId == UserId).RoleId;//1,3
                 return roleId;
             }
             catch (Exception)
