@@ -190,7 +190,7 @@ namespace E_biblioteka.Controllers
             base.Dispose(disposing);
         }
 
-        private Boolean IsAuthorized(int id)
+        private bool IsAuthorized(int id)
         {
             int PostId = id;
             string UserId = User.Identity.GetUserId();
