@@ -49,7 +49,7 @@ namespace UnitTests
             Name = "Girl with a Pearl Earring",
             Genre = "Historical Fiction",
             Year = 1999,
-            Rating = 3.6,
+            Rating = 1,
             Author = TracyChevalier
         };
 

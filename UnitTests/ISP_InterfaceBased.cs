@@ -122,7 +122,7 @@ namespace UnitTests
             Assert.AreEqual(4, model.Books[2].BookId);
             Assert.AreEqual(3.9, model.Books[2].Rating);
             Assert.AreEqual(2, model.Books[3].BookId);
-            Assert.AreEqual(3.6, model.Books[3].Rating);
+            Assert.AreEqual(1, model.Books[3].Rating);
         }
 
         [TestMethod]
