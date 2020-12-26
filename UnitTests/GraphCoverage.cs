@@ -49,6 +49,8 @@ namespace UnitTests
         {
             ViewResult result = controller.UpVote(3) as ViewResult;
             Assert.AreEqual("Details", result.ViewName);
+            Book book = result.Model as Book;
+            Assert.AreEqual(5, book.Rating);
         }
     }
 }

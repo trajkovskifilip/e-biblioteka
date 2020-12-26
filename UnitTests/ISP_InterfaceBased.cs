@@ -116,7 +116,7 @@ namespace UnitTests
             BooksViewModel model = result.Model as BooksViewModel;
             Assert.AreEqual(4, model.Books.Count);
             Assert.AreEqual(3, model.Books[0].BookId);
-            Assert.AreEqual(4.5, model.Books[0].Rating);
+            Assert.AreEqual(5, model.Books[0].Rating);
             Assert.AreEqual(1, model.Books[1].BookId);
             Assert.AreEqual(4.2, model.Books[1].Rating);
             Assert.AreEqual(4, model.Books[2].BookId);
