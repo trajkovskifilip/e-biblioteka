@@ -59,7 +59,7 @@ namespace UnitTests
             Name = "The Da Vinci Code",
             Genre = "Thriller",
             Year = 2003,
-            Rating = 4.5,
+            Rating = 5,
             Author = DanBrown
         };
 
