@@ -87,5 +87,56 @@ namespace UnitTests
             String book = "V for Vendetta";
             Assert.AreEqual(book, real_book);
         }
+        [TestMethod]
+        public void Test6()
+        {
+            _driver.Navigate().GoToUrl("https://localhost:44305/");
+            _driver.FindElement(By.Id("loginLink")).Click();
+            _driver.FindElement(By.Id("UserName")).SendKeys("admin@library.com");
+            _driver.FindElement(By.Id("Password")).SendKeys("Password1!");
+            _driver.FindElement(By.CssSelector(".btn")).Click();
+            _driver.FindElement(By.LinkText("Books")).Click();
+            _driver.FindElement(By.LinkText("Edit")).Click();
+            _driver.FindElement(By.Id("Book_InStock")).Click();
+            _driver.FindElement(By.Id("Book_InStock")).SendKeys("3");
+            {
+                IWebElement element = _driver.FindElement(By.Id("Book_InStock"));
+                OpenQA.Selenium.Interactions.Actions builder = new OpenQA.Selenium.Interactions.Actions(_driver);
+                builder.DoubleClick(element).Perform();
+            }
+            _driver.FindElement(By.CssSelector(".btn-success")).Click();
+            _driver.FindElement(By.CssSelector(".card:nth-child(2) .btn-danger")).Click();
+            _driver.FindElement(By.CssSelector(".btn-danger")).Click();
+
+        }
+        [TestMethod]
+        public void Test7()
+        {
+            _driver.Navigate().GoToUrl("https://localhost:44305/");
+            _driver.FindElement(By.Id("loginLink")).Click();
+            _driver.FindElement(By.Id("UserName")).SendKeys("admin@library.com");
+            _driver.FindElement(By.Id("Password")).SendKeys("Password1!");
+            _driver.FindElement(By.CssSelector(".btn")).Click();
+            _driver.FindElement(By.LinkText("Forum")).Click();
+            _driver.FindElement(By.LinkText("Edit")).Click();
+            _driver.FindElement(By.Id("Content")).Click();
+            _driver.FindElement(By.Id("Content")).SendKeys("asdasdadkklj");
+            _driver.FindElement(By.CssSelector(".btn")).Click();
+        }
+        [TestMethod]
+        public void Test8()
+        {
+            _driver.Navigate().GoToUrl("https://localhost:44305/");
+            _driver.FindElement(By.Id("loginLink")).Click();
+            _driver.FindElement(By.Id("UserName")).Click();
+            _driver.FindElement(By.CssSelector(".form-group:nth-child(5) > .col-md-10")).Click();
+            _driver.FindElement(By.CssSelector(".btn")).Click();
+            String real_password_error = _driver.FindElement(By.Id("Password-error")).Text;
+            String real_username_error = _driver.FindElement(By.Id("UserName-error")).Text;
+            String password_error = "The Password field is required.";
+            String username_error = "The Username field is required.";
+            Assert.AreEqual(real_password_error, password_error);
+            Assert.AreEqual(real_username_error, username_error);
+        }
     }
 }
