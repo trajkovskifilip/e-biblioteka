@@ -22,14 +22,6 @@ namespace UnitTests
         public void Test1()
         {
             _driver.Navigate().GoToUrl("https://localhost:44305/");
-            String url_title = _driver.Title;
-            String expected_title = "Home Page - My ASP.NET Application";
-            Assert.AreEqual(expected_title, url_title);
-        }
-        [TestMethod]
-        public void Test2()
-        {
-            _driver.Navigate().GoToUrl("https://localhost:44305/");
             _driver.FindElement(By.Id("registerLink")).Click();
             _driver.FindElement(By.Id("UserName")).Click();
             _driver.FindElement(By.Id("UserName")).SendKeys("aida");
@@ -42,7 +34,7 @@ namespace UnitTests
 
         }
         [TestMethod]
-        public void Test3()
+        public void Test2()
         {
             _driver.Navigate().GoToUrl("https://localhost:44305/");
             _driver.FindElement(By.Id("registerLink")).Click();
@@ -58,7 +50,7 @@ namespace UnitTests
 
         }
         [TestMethod]
-        public void Test4()
+        public void Test3()
         {
             _driver.Navigate().GoToUrl("https://localhost:44305/");
             _driver.FindElement(By.LinkText("Find something to read")).Click();
@@ -67,11 +59,11 @@ namespace UnitTests
             _driver.FindElement(By.Id("search")).SendKeys(Keys.Enter);
             String real_title = _driver.FindElement(By.ClassName("card-title")).Text;
             String title = "Harry Potter and the Sorcerer's Stone";
-            Assert.AreEqual(real_title, title);
+            Assert.AreEqual(title, real_title);
 
         }
         [TestMethod]
-        public void Test5()
+        public void Test4()
         {
             _driver.Navigate().GoToUrl("https://localhost:44305/");
             _driver.FindElement(By.LinkText("Find something to read")).Click();
@@ -88,7 +80,7 @@ namespace UnitTests
             Assert.AreEqual(book, real_book);
         }
         [TestMethod]
-        public void Test6()
+        public void Test5()
         {
             _driver.Navigate().GoToUrl("https://localhost:44305/");
             _driver.FindElement(By.Id("loginLink")).Click();
@@ -97,20 +89,15 @@ namespace UnitTests
             _driver.FindElement(By.CssSelector(".btn")).Click();
             _driver.FindElement(By.LinkText("Books")).Click();
             _driver.FindElement(By.LinkText("Edit")).Click();
-            _driver.FindElement(By.Id("Book_InStock")).Click();
+            _driver.FindElement(By.Id("Book_InStock")).Clear();
             _driver.FindElement(By.Id("Book_InStock")).SendKeys("3");
-            {
-                IWebElement element = _driver.FindElement(By.Id("Book_InStock"));
-                OpenQA.Selenium.Interactions.Actions builder = new OpenQA.Selenium.Interactions.Actions(_driver);
-                builder.DoubleClick(element).Perform();
-            }
             _driver.FindElement(By.CssSelector(".btn-success")).Click();
             _driver.FindElement(By.CssSelector(".card:nth-child(2) .btn-danger")).Click();
             _driver.FindElement(By.CssSelector(".btn-danger")).Click();
 
         }
         [TestMethod]
-        public void Test7()
+        public void Test6()
         {
             _driver.Navigate().GoToUrl("https://localhost:44305/");
             _driver.FindElement(By.Id("loginLink")).Click();
@@ -119,12 +106,12 @@ namespace UnitTests
             _driver.FindElement(By.CssSelector(".btn")).Click();
             _driver.FindElement(By.LinkText("Forum")).Click();
             _driver.FindElement(By.LinkText("Edit")).Click();
-            _driver.FindElement(By.Id("Content")).Click();
+            _driver.FindElement(By.Id("Content")).Clear();
             _driver.FindElement(By.Id("Content")).SendKeys("asdasdadkklj");
             _driver.FindElement(By.CssSelector(".btn")).Click();
         }
         [TestMethod]
-        public void Test8()
+        public void Test7()
         {
             _driver.Navigate().GoToUrl("https://localhost:44305/");
             _driver.FindElement(By.Id("loginLink")).Click();
@@ -135,8 +122,8 @@ namespace UnitTests
             String real_username_error = _driver.FindElement(By.Id("UserName-error")).Text;
             String password_error = "The Password field is required.";
             String username_error = "The Username field is required.";
-            Assert.AreEqual(real_password_error, password_error);
-            Assert.AreEqual(real_username_error, username_error);
+            Assert.AreEqual(password_error, real_password_error);
+            Assert.AreEqual(username_error, real_username_error);
         }
     }
 }
